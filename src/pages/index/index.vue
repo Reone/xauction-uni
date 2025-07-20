@@ -11,10 +11,8 @@
 </template>
 
 <script>
-import UvInput from "../../uni_modules/uv-input/components/uv-input/uv-input.vue";
 
 export default {
-  components: {UvInput},
   data() {
     return {
       title: 'Hello h5',
