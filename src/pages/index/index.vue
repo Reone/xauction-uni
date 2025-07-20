@@ -2,13 +2,19 @@
   <view class="container">
     <image class="container-img" src="/static/container_bg.png"></image>
     <view class="content">
-      <input type="text" placeholder="请输入内容" />
+      <view class="page">
+        <input placeholder="6位邀请码" class="input-code" maxlength="6"/>
+        <button class="btn" src="/static/btn.png" @click="goMine">登入</button>
+      </view>
     </view>
   </view>
 </template>
 
 <script>
+import UvInput from "../../uni_modules/uv-input/components/uv-input/uv-input.vue";
+
 export default {
+  components: {UvInput},
   data() {
     return {
       title: 'Hello h5',
@@ -25,5 +31,32 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  .input-code {
+    background-color: #ffffff;
+    padding: 30rpx 40rpx;
+    border-radius: 14rpx;
+    text-align: center;
+    letter-spacing: 10px;
+    font-weight: 500;
+    font-size: large;
+  }
+
+  .btn {
+    top: 30%;
+    border-radius: 14rpx;
+    background-color: #A4FF7C;
+    color: black;
+    font-size: 16px;
+    padding: 6rpx 150rpx;
+  }
+}
 </style>
