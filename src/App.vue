@@ -13,5 +13,18 @@ export default {
 </script>
 
 <style>
-/*每个页面公共css */
+.container{
+  height: 100vh;
+  width: 100vw;
+  background-color: #000000;
+  .container-img{
+    width: 100%;
+  }
+  .content {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+  }
+}
 </style>
