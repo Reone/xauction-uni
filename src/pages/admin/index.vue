@@ -3,18 +3,24 @@
     <image class="container-img" src="/static/container_bg.png"></image>
     <view class="content">
       <view class="page">
-        <uv-subsection :list="tabs.list" :current="tabs.index"
-                       mode="subsection"
-                       inactive-color="#ffffff"
-                       active-color="#A4FF7C"
-                       @change="sectionChange"/>
+        <uv-subsection
+            :list="tabs.list"
+            :current="tabs.index"
+            mode="subsection"
+            inactive-color="#ffffff"
+            active-color="#A4FF7C"
+            @change="handleSubsectionChange"
+        />
 
-        <swiper style="height: 100%" @change="sectionChange" :current="tabs.index">
-          <swiper-item v-for="(item, index) in tabs.list">
-
+        <swiper
+            style="height: 100%"
+            :current="tabs.index"
+            @change="handleSwiperChange"
+        >
+          <swiper-item v-for="(item, index) in tabs.list" :key="index">
+            {{ item + index }}
           </swiper-item>
         </swiper>
-
       </view>
     </view>
   </view>
@@ -23,9 +29,6 @@
 <script>
 import UvSubsection from "../../uni_modules/uv-subsection/components/uv-subsection/uv-subsection.vue";
 
-/**
- * @author reone create by 2025/7/22
- */
 export default {
   components: {UvSubsection},
   data() {
@@ -36,13 +39,19 @@ export default {
       }
     }
   },
-  props: {},
-  watch: {},
-  created() {
-  },
   methods: {
-    sectionChange(index) {
-      this.tabs.index = index;
+    handleSubsectionChange(index) {
+      // 防止事件循环
+      if (this.tabs.index !== index) {
+        this.tabs.index = index;
+      }
+    },
+    handleSwiperChange(e) {
+      const index = e.detail.current;
+      // 防止事件循环
+      if (this.tabs.index !== index) {
+        this.tabs.index = index;
+      }
     }
   }
 }
