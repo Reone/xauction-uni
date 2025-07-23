@@ -3,8 +3,8 @@
     <image class="container-img" src="/static/container_bg.png"></image>
     <view class="content">
       <view class="page">
-        <input placeholder="6位邀请码" class="input-code" maxlength="6"/>
-        <button class="btn" src="/static/btn.png" @click="goMine">登入</button>
+        <input v-model="code" placeholder="6位识别码" class="input-code" maxlength="6"/>
+        <button class="btn" src="/static/btn.png" @click="login">登入</button>
       </view>
     </view>
   </view>
@@ -15,15 +15,18 @@
 export default {
   data() {
     return {
-      title: 'Hello h5',
+      // code: null,
+      code:'252207'
     }
   },
   onLoad() {},
   methods: {
-    goMine() {
-      uni.navigateTo({
-        url: '/pages/mine/index',
-      })
+    login() {
+      if(this.code === '252207'){
+        uni.reLaunch({
+          url: '/pages/admin/index',
+        })
+      }
     },
   },
 }

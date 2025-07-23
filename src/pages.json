@@ -4,7 +4,7 @@
 			"path": "pages/index/index"
 		},
 		{
-			"path": "pages/mine/index"
+			"path": "pages/admin/index"
 		}
 	],
 	"globalStyle": {
