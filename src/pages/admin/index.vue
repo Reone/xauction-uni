@@ -5,6 +5,7 @@
       <view class="page">
         <uv-subsection
             :list="tabs.list"
+            style="width: calc(100% - 20px);height: 34px"
             :current="tabs.index"
             mode="subsection"
             inactive-color="#ffffff"
@@ -63,5 +64,6 @@ export default {
   flex-direction: column;
   height: 100%;
   width: 100%;
+  padding: 10px;
 }
 </style>

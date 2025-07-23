@@ -1,6 +1,7 @@
 <template>
   <view class="container">
     <image class="container-img" src="/static/container_bg.png"></image>
+    <text class="title-txt">X-Auction</text>
     <view class="content">
       <view class="page">
         <input v-model="code" placeholder="6位识别码" class="input-code" maxlength="6"/>
@@ -33,6 +34,18 @@ export default {
 </script>
 
 <style scoped>
+
+.title-txt {
+  color: #fff;
+  font-size: 34px;
+  font-weight: 800;
+  position: absolute;
+  top: 10%;
+  left: 0;
+  right: 0;
+  justify-self: center;
+}
+
 .page {
   display: flex;
   justify-content: center;
