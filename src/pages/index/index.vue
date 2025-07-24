@@ -5,7 +5,7 @@
     <view class="content">
       <view class="page">
         <input v-model="code" placeholder="6位识别码" class="input-code" maxlength="6"/>
-        <button class="btn" src="/static/btn.png" @click="login">登入</button>
+        <button class="btn" @click="login">登入</button>
       </view>
     </view>
   </view>
