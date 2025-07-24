@@ -1,7 +1,7 @@
 <template>
-  <div class="container">
+  <view class="container">
 
-  </div>
+  </view>
 </template>
 
 <script>
@@ -9,7 +9,7 @@
  * @author reone create by 2025/7/22
  */
 export default {
-  name: "Auction",
+  name: "AuctionIndex",
   data() {
     return {
       subData: null
@@ -30,6 +30,6 @@ export default {
 
 <style scoped>
 .container {
-
+  background-color: transparent;
 }
 </style>

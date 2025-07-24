@@ -19,6 +19,7 @@ export default {
   background-color: #000000;
   .container-img{
     width: 100%;
+    height: inherit;
   }
   .content {
     height: 100%;
