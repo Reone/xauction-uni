@@ -1,17 +1,21 @@
 <template>
   <view class="container">
     <scroll-view scroll-y="true" style=" height: 100%;">
-      <view class="card-container" v-for="item in codeList">
-        <text class="code-text">129379182</text>
+      <view class="card-container" v-for="item in userList">
+        <text class="code-text">{{ item.code }}</text>
+        <text class="code-text">已生成</text>
+        <text class="code-text">{{ JSON.stringify(item) }}</text>
+        <button @click="registerUser(item)">确认生成</button>
       </view>
     </scroll-view>
-    <button class="btn" :loading="codeLoading" loadingMode="" @click="generateCode">生成识别码</button>
+    <button class="btn" :loading="codeLoading" loadingMode="" @click="prepareCode">生成识别码</button>
   </view>
 </template>
 
 <script>
 import UvIcon from "../../uni_modules/uv-icon/components/uv-icon/uv-icon.vue";
 import UvButton from "../../uni_modules/uv-button/components/uv-button/uv-button.vue";
+import {generateCode, registerUser, userList} from "../../api/user";
 
 /**
  * @author reone create by 2025/7/23
@@ -22,20 +26,45 @@ export default {
   data() {
     return {
       codeLoading: false,
-      codeList: [{}]
+      userList: []
     }
   },
   props: {},
   watch: {},
   created() {
+    this.loadData()
   },
   methods: {
-    generateCode() {
+    loadData() {
+      userList().then(res => {
+        this.userList = res.data
+      })
+    },
+    prepareCode() {
       this.codeLoading = true
-      setTimeout(() => {
-        this.codeList.push({})
+      generateCode().then(res => {
+        const code = res.data
+        //在userList首位加一个新的元素
+        this.userList.unshift({
+          code: code
+        })
         this.codeLoading = false
-      }, 1000)
+      })
+    },
+    registerUser(item) {
+      if (item.code) {
+        registerUser({
+          code: item.code
+        }).then(res => {
+          //将列表中code为item.code的元素替换成res.data
+          this.userList = this.userList.map(item => {
+            if (item.code === res.data.code) {
+              return res.data
+            }
+            return item
+          })
+        })
+      }
     }
   }
 }

@@ -13,6 +13,8 @@
 
 <script>
 
+import {loginByCode, userList} from "../../api/user";
+
 export default {
   data() {
     return {
@@ -20,14 +22,23 @@ export default {
       code:'252207'
     }
   },
-  onLoad() {},
+  onLoad() {
+  },
   methods: {
     login() {
-      if(this.code === '252207'){
-        uni.reLaunch({
-          url: '/pages/admin/index',
-        })
-      }
+      loginByCode({code: this.code}).then(res => {
+        const user = res.data
+        uni.setStorageSync('user', user)
+        if (user.role === 0) {
+          uni.navigateTo({
+            url: '/pages/auction/index'
+          })
+        } else {
+          uni.navigateTo({
+            url: '/pages/admin/index'
+          })
+        }
+      })
     },
   },
 }
