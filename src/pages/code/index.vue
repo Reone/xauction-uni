@@ -2,10 +2,42 @@
   <view class="container">
     <scroll-view scroll-y="true" style=" height: 100%;">
       <view class="card-container" v-for="item in userList">
-        <text class="code-text">{{ item.code }}</text>
-        <text class="code-text">已生成</text>
-        <text class="code-text">{{ JSON.stringify(item) }}</text>
-        <button @click="registerUser(item)">确认生成</button>
+        <view class="card-bg"/>
+        <view style="padding: 20px">
+          <uv-row>
+            <text class="text" style="font-weight: 900;font-size: 30px;color: white">识别码：{{ item.code }}</text>
+          </uv-row>
+          <uv-row v-if="item.id">
+            <uv-col :span="2">
+              <text class="row-title">编号：</text>
+            </uv-col>
+            <uv-col :span="8">
+              <text class="row-content">{{ item.no }}</text>
+            </uv-col>
+          </uv-row>
+          <uv-row v-if="item.id">
+            <uv-col :span="2">
+              <text class="row-title">昵称：</text>
+            </uv-col>
+            <uv-col :span="8">
+              <text class="row-content">{{ item.nick }}</text>
+            </uv-col>
+          </uv-row>
+          <uv-row v-if="item.id">
+            <uv-col :span="2">
+              <text class="row-title">角色：</text>
+            </uv-col>
+            <uv-col :span="8">
+              <text class="row-content">{{ roleName(item) }}</text>
+            </uv-col>
+          </uv-row>
+          <uv-row v-if="!item.id">
+            <uv-col :span="8"/>
+            <uv-col :span="4">
+              <button @click="registerUser(item)" size="mini">确认生成</button>
+            </uv-col>
+          </uv-row>
+        </view>
       </view>
     </scroll-view>
     <button class="btn" :loading="codeLoading" loadingMode="" @click="prepareCode">生成识别码</button>
@@ -16,13 +48,15 @@
 import UvIcon from "../../uni_modules/uv-icon/components/uv-icon/uv-icon.vue";
 import UvButton from "../../uni_modules/uv-button/components/uv-button/uv-button.vue";
 import {generateCode, registerUser, userList} from "../../api/user";
+import UvCol from "../../uni_modules/uv-row/components/uv-col/uv-col.vue";
+import UvRow from "../../uni_modules/uv-row/components/uv-row/uv-row.vue";
 
 /**
  * @author reone create by 2025/7/23
  */
 export default {
   name: "CodeIndex",
-  components: {UvButton, UvIcon},
+  components: {UvRow, UvCol, UvButton, UvIcon},
   data() {
     return {
       codeLoading: false,
@@ -35,6 +69,16 @@ export default {
     this.loadData()
   },
   methods: {
+    roleName(item) {
+      switch (item.role) {
+        case 0:
+          return '会员'
+        case 1:
+          return '管理员'
+        case -1:
+          return '超级管理员'
+      }
+    },
     loadData() {
       userList().then(res => {
         this.userList = res.data
@@ -81,17 +125,29 @@ export default {
   height: 20%;
   justify-self: center;
   margin-bottom: 10px;
+  position: relative;
   margin-top: 5px;
-  background-color: #fff;
-  opacity: 0.1;
-  border-radius: 12px;
-  box-shadow: 5px 8px 12px rgba(0, 0, 0, 1);
   &:first-child {
     margin-top: 70px;
   }
   &:last-child {
     margin-bottom: 10%;
   }
+}
+
+.card-bg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: #fff;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  opacity: 0.1;
+  border-radius: 12px;
+  box-shadow: 5px 8px 12px rgba(0, 0, 0, 1);
 }
 
 .btn {
@@ -102,5 +158,19 @@ export default {
   font-size: 14px;
   top: 10px;
   justify-self: center;
+}
+
+.row-content {
+  font-size: 16px;
+  color: white;
+}
+
+.row-title {
+  font-size: 16px;
+  color: white;
+}
+
+.uv-row {
+  margin-bottom: 6px;
 }
 </style>
