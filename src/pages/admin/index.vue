@@ -16,9 +16,8 @@
             :current="tabs.index"
             @change="handleSwiperChange">
           <swiper-item v-for="(item, index) in tabs.list" :key="index">
-            <AuctionIndex status="0" v-if="index === 0"/>
-            <AuctionIndex v-if="index === 1"/>
-            <CodeIndex v-if="index === 2"/>
+            <AuctionIndex v-if="index === 0"/>
+            <CodeIndex v-if="index === 1"/>
           </swiper-item>
         </swiper>
       </view>
@@ -36,8 +35,8 @@ export default {
   data() {
     return {
       tabs: {
-        list: ['草稿箱', '已发布', '识别码'],
-        index: 1
+        list: ['拍卖列表', '识别码'],
+        index: 0
       }
     }
   },
