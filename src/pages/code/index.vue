@@ -3,9 +3,9 @@
     <scroll-view scroll-y="true" style=" height: 100%;">
       <view class="card-container" v-for="item in userList">
         <view class="card-bg"/>
-        <view style="padding: 20px">
+        <view style="padding: 20upx">
           <uv-row>
-            <text class="text" style="font-weight: 900;font-size: 30px;color: white">识别码：{{ item.code }}</text>
+            <text class="text" style="font-weight: 900;font-size: 45upx;color: white">识别码：{{ item.code }}</text>
           </uv-row>
           <uv-row v-if="item.id">
             <uv-col :span="2">
@@ -124,11 +124,11 @@ export default {
   width: 90%;
   height: 20%;
   justify-self: center;
-  margin-bottom: 10px;
+  margin-bottom: 20upx;
   position: relative;
-  margin-top: 5px;
+  margin-top:10upx;
   &:first-child {
-    margin-top: 70px;
+    margin-top: 120upx;
   }
   &:last-child {
     margin-bottom: 10%;
@@ -146,31 +146,31 @@ export default {
   bottom: 0;
   z-index: -1;
   opacity: 0.1;
-  border-radius: 12px;
-  box-shadow: 5px 8px 12px rgba(0, 0, 0, 1);
+  border-radius: 12upx;
+  box-shadow: 5upx 8upx 12upx rgba(0, 0, 0, 1);
 }
 
 .btn {
   width: 80%;
-  border-radius: 14rpx;
+  border-radius: 12upx;
   background-color: #A4FF7C;
   position: absolute;
-  font-size: 14px;
-  top: 10px;
+  font-size: 24upx;
+  top: 20upx;
   justify-self: center;
 }
 
 .row-content {
-  font-size: 16px;
+  font-size: 24upx;
   color: white;
 }
 
 .row-title {
-  font-size: 16px;
+  font-size: 24upx;
   color: white;
 }
 
 .uv-row {
-  margin-bottom: 6px;
+  margin-bottom: 12upx;
 }
 </style>
