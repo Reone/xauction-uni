@@ -20,7 +20,16 @@
             </view>
           </scroll-view>
         </view>
-        <view class="bottom-container">
+        <view class="msg-container" :style="{height: msgContainerHeight}">
+          <view class="bg-view"/>
+          <scroll-view class="scroll-view" scroll-y="true">
+            <view class="scroll-container">
+              <view class="top-line" @click="toggleMsg"/>
+              <view class="item-container" v-for="a of 10">
+
+              </view>
+            </view>
+          </scroll-view>
         </view>
       </view>
     </view>
@@ -33,23 +42,29 @@ import CodeIndex from "../code/index.vue";
 import AuctionIndex from "./index.vue";
 import UvImage from "../../uni_modules/uv-image/components/uv-image/uv-image.vue";
 import UvDivider from "../../uni_modules/uv-divider/components/uv-divider/uv-divider.vue";
+import UvReadMore from "../../uni_modules/uv-read-more/components/uv-read-more/uv-read-more.vue";
 
 /**
  * @author reone create by 2025/7/27
  */
 export default {
   name: "detail",
-  components: {UvDivider, UvImage, AuctionIndex, CodeIndex, UvSubsection},
+  components: {UvReadMore, UvDivider, UvImage, AuctionIndex, CodeIndex, UvSubsection},
   data() {
     return {
-      subData: null
+      subData: null,
+      msgContainerHeight: '25%'
     }
   },
   props: {},
   watch: {},
   created() {
   },
-  methods: {}
+  methods: {
+    toggleMsg() {
+      this.msgContainerHeight = this.msgContainerHeight === '25%' ? '80%' : '25%'
+    }
+  }
 }
 </script>
 
@@ -57,33 +72,82 @@ export default {
 .container {
 
 }
+
 .page {
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
 }
-.info-container{
+
+.info-container {
   height: 100%;
   width: 100%;
   overflow: inherit;
   box-shadow: 10upx 16upx 24upx rgba(0, 0, 0, 0.5);
-  .scroll-view{
+
+  .scroll-view {
     height: 100%;
     width: 100%;
-    .scroll-container{
+
+    .scroll-container {
       height: 100%;
       width: 100%;
       display: flex;
       flex-direction: column;
-      .info{
+
+      .info {
         padding: 20upx;
         color: white;;
       }
     }
   }
 }
-.bottom-container{
 
+.msg-container {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transition: height 0.3s ease-in-out;
+  will-change: height; /* 优化性能 */
+
+  .bg-view {
+    opacity: 0.15;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-color: #ffffff;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+  }
+
+  .top-line {
+    background-color: rgb(255, 255, 255, 0.4);
+    width: 50%;
+    height: 4px;
+    justify-self: center;
+    margin: 14px;
+    align-self: center;
+    border-radius: 10px;
+  }
+
+  .scroll-view {
+    height: 100%;
+    width: 100%;
+
+    .scroll-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+
+      .item-container {
+        height: 120px;
+        margin: 5px 20px;
+        border-radius: 24upx;
+        background-color: #A4FF7C;
+      }
+    }
+  }
 }
 </style>
