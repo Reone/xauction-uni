@@ -81,7 +81,7 @@ export default {
     },
     loadData() {
       userList().then(res => {
-        this.userList = res.data
+        this.userList = res.data.filter(item => item.id && item.id !== 0)
       })
     },
     prepareCode() {

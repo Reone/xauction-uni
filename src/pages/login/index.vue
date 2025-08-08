@@ -4,7 +4,7 @@
     <text class="title-txt">X-Auction</text>
     <view class="content">
       <view class="page">
-        <text class="version">0808</text>
+        <text class="version">0809</text>
         <input v-model="code" placeholder="6位识别码" class="input-code" maxlength="6"/>
         <button class="btn" @click="login">登入</button>
       </view>
