@@ -4,6 +4,7 @@
     <text class="title-txt">X-Auction</text>
     <view class="content">
       <view class="page">
+        <text class="version">0808</text>
         <input v-model="code" placeholder="6位识别码" class="input-code" maxlength="6"/>
         <button class="btn" @click="login">登入</button>
       </view>
@@ -13,7 +14,7 @@
 
 <script>
 
-import {loginByCode, userList} from "../../api/user";
+import {loginByCode} from "../../api/user";
 
 export default {
   data() {
@@ -83,5 +84,15 @@ export default {
     font-size: 16px;
     padding: 6rpx 150rpx;
   }
+}
+
+.version {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  justify-self: center;
+  color: #ffffff;
+  font-size: 9px;
+  opacity: 0.5;
 }
 </style>
