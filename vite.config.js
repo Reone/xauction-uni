@@ -1,16 +1,16 @@
 import { defineConfig } from 'vite';
 import uni from '@dcloudio/vite-plugin-uni';
 
-export default defineConfig(({ command }) => {
-  // 根据 command 判断当前模式：'serve'（开发）或 'build'（生产）
+export default defineConfig(({ command, mode }) => {
   const isDev = command === 'serve';
 
-  // 动态设置代理目标
+  // 代理配置
   const proxyTarget = isDev
       ? 'http://localhost:8080'  // 开发环境
       : 'https://iamreone.top/servi'; // 生产环境
 
   return {
+    base:'/xauction-h5/',
     plugins: [uni()],
     server: {
       proxy: {
@@ -25,6 +25,19 @@ export default defineConfig(({ command }) => {
       loaderOptions: {
         sass: {
           sassOptions: { outputStyle: "expanded" }
+        }
+      }
+    },
+    build: {
+      // 生产环境构建配置
+      outDir: 'dist',
+      assetsDir: 'static',
+      rollupOptions: {
+        output: {
+          // 确保静态资源路径正确
+          assetFileNames: `static/[name].[hash][extname]`,
+          chunkFileNames: `static/[name].[hash].js`,
+          entryFileNames: `static/[name].[hash].js`
         }
       }
     }
