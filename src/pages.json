@@ -1,16 +1,19 @@
 {
 	"pages": [
 		{
-			"path": "pages/login/index"
+			"path": "pages/login/index"//登录页
 		},
 		{
-			"path": "pages/admin/index"
+			"path": "pages/admin/index"//管理员首页
 		},
 		{
-			"path": "pages/auction/index"
+			"path": "pages/auction/index" //拍卖页面
 		},
 		{
-			"path": "pages/auction/detail"
+			"path": "pages/auction/add" //添加拍卖页面
+		},
+		{
+			"path": "pages/auction/detail" //拍卖详情页面
 		}
 	],
 	"globalStyle": {

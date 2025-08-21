@@ -16,7 +16,7 @@
             :current="tabs.index"
             @change="handleSwiperChange">
           <swiper-item v-for="(item, index) in tabs.list" :key="index">
-            <AuctionIndex v-if="index === 0"/>
+            <AuctionIndex v-if="index === 0" :is-child-page="true"/>
             <CodeIndex v-if="index === 1"/>
           </swiper-item>
         </swiper>
