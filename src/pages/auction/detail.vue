@@ -74,7 +74,9 @@
           type="digit"
           class="bid-input"
       />
-      <button class="bid-button" @click="submitOffer">提交</button>
+      <button class="bid-button" @click="submitOffer" :loading="submitting" :disabled="submitting">
+        {{ submitting ? '提交中...' : '提交' }}
+      </button>
     </view>
   </view>
 </template>
@@ -97,6 +99,7 @@ export default {
       auction: null,
       offers: [],
       bidPrice: '',
+      submitting: false,
       defaultCover: 'https://via.placeholder.com/750x420?text=Auction',
       navbarTitle: {
         color: '#0f5132',
@@ -138,19 +141,37 @@ export default {
         toast('请输入出价')
         return
       }
+
+      const price = Number(this.bidPrice)
+      if (isNaN(price) || price <= 0) {
+        toast('请输入有效的出价金额')
+        return
+      }
+
       const userId = getUserId()
       if (!userId) {
         toast('请先登录')
+        setTimeout(() => {
+          uni.reLaunch({url: '/pages/login/index'})
+        }, 1500)
         return
       }
+
+      this.submitting = true
       addOffer({
         auctionId: this.auctionId,
         userId,
-        price: Number(this.bidPrice)
+        price: price
       }).then(() => {
         toast('出价成功')
         this.bidPrice = ''
         this.loadOffers()
+        this.loadAuction()
+      }).catch(err => {
+        // 错误已在 request.js 中处理
+        console.error('出价失败:', err)
+      }).finally(() => {
+        this.submitting = false
       })
     }
   }

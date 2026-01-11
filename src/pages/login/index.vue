@@ -6,7 +6,7 @@
       <view class="page">
         <text class="version">0809</text>
         <input v-model="code" placeholder="6位识别码" class="input-code" maxlength="6"/>
-        <button class="btn" @click="login">登入</button>
+        <button class="btn" @click="login" :loading="loading" :disabled="loading">{{ loading ? '登录中...' : '登入' }}</button>
       </view>
     </view>
   </view>
@@ -19,17 +19,33 @@ import {loginByCode} from "../../api/user";
 export default {
   data() {
     return {
-      // code: null,
-      code:'252207'
+      code: '',
+      loading: false
     }
   },
   onLoad() {
+    // 清除旧的登录信息
+    uni.removeStorageSync('token')
+    uni.removeStorageSync('user')
   },
   methods: {
     login() {
+      if (!this.code || this.code.length !== 6) {
+        uni.showToast({
+          title: '请输入6位识别码',
+          icon: 'none'
+        })
+        return
+      }
+
+      this.loading = true
       loginByCode({code: this.code}).then(res => {
-        const user = res.data
+        const user = res.data.user || res.data
+        const token = res.data.token
+
+        uni.setStorageSync('token', token)
         uni.setStorageSync('user', user)
+
         if (user.role === 0) {
           uni.navigateTo({
             url: '/pages/auction/index'
@@ -39,6 +55,10 @@ export default {
             url: '/pages/admin/index'
           })
         }
+      }).catch(err => {
+        console.error('登录失败:', err)
+      }).finally(() => {
+        this.loading = false
       })
     },
   },

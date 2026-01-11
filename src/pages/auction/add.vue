@@ -126,19 +126,18 @@ export default {
     async addAuction() {
       if (this.submitting) return
       if (!this.validateForm()) return
+
       this.submitting = true
       uni.showLoading({title: '提交中', mask: true})
+
       const payload = {
         ...this.auctionForm,
         minPrice: Number(this.auctionForm.minPrice),
         maxPrice: this.auctionForm.maxPrice ? Number(this.auctionForm.maxPrice) : null
       }
-      let timer = null
-      const timeoutGuard = new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error('TIMEOUT')), 12000)
-      })
+
       try {
-        const res = await Promise.race([addAuction(payload), timeoutGuard])
+        const res = await addAuction(payload)
         if (res.code === 200) {
           toast('添加成功')
           this.safeBack()
@@ -172,9 +171,11 @@ export default {
     },
     async afterRead(event) {
       const files = Array.isArray(event.file) ? event.file : [event.file]
+
       files.forEach(file => {
-        this.fileList = [{...file, status: 'uploading', message: '上传中'}]
+        this.fileList.push({...file, status: 'uploading', message: '上传中'})
       })
+
       try {
         const url = await this.uploadFilePromise(files[0].url)
         this.fileList = [{url, status: 'success'}]
