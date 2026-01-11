@@ -1,44 +1,71 @@
 <script>
 export default {
-  onLaunch: function () {
+  onLaunch() {
     console.log('App Launch')
   },
-  onShow: function () {
+  onShow() {
     console.log('App Show')
   },
-  onHide: function () {
+  onHide() {
     console.log('App Hide')
-  },
+  }
 }
 </script>
 
-<style>
-html, body {
-  height: 100vh;
+<style lang="scss">
+:root {
+  --color-primary: #1fbe6b;
+  --color-primary-dark: #169a55;
+  --color-primary-light: #e7f8ef;
+  --color-text: #1f2a37;
+  --color-muted: #6b7280;
+  --color-bg: #f4f6f8;
+  --color-card: #ffffff;
+}
+
+html,
+body {
+  height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #000; /* 防止弹性滚动露白 */
-  overflow-x: hidden; /* 防止横向滚动 */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+page {
+  background-color: var(--color-bg);
 }
 
 .container {
-  height: 100vh;
+  min-height: 100vh;
   width: 100vw;
-  background-color: #000000;
-  position: relative; /* 为绝对定位子元素建立包含块 */
+  background: linear-gradient(180deg, #f9fffb 0%, #f1f5f3 100%);
+  position: relative;
+  overflow: hidden;
 
   .container-img {
     width: 100%;
-    height: inherit;
-    object-fit: cover; /* 确保图片覆盖整个容器 */
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.4);
+    opacity: 0.25;
   }
 
   .content {
-    height: 100%;
-    width: 100%;
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
   }
+}
+
+button,
+.btn,
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+  border-radius: 999px;
+  border: none;
 }
 </style>

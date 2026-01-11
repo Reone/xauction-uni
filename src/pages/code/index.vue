@@ -114,7 +114,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .container {
   background-color: transparent;
   height: 100%;

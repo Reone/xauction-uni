@@ -13,13 +13,18 @@ const request = config => {
         url = url.slice(0, -1)
         config.url = url
     }
+    const header = config.header || {}
+    const user = uni.getStorageSync('user') || {}
+    if (user.id && !header['user-id']) {
+        header['user-id'] = user.id
+    }
     return new Promise((resolve, reject) => {
         uni.request({
             method: config.method || 'get',
             timeout: config.timeout || timeout,
             url: config.baseUrl || baseUrl + config.url,
             data: config.data,
-            header: config.header,
+            header,
             dataType: 'json'
         }).then(res => {
             const code = res.data.code || 200

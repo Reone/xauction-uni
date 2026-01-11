@@ -1,16 +1,31 @@
 import request from "./request";
 
-export function auctionList() {
+export function auctionList(params = {}) {
     return request({
         url: '/auction/list',
-        method: 'get'
+        method: 'get',
+        params
     })
 }
 
-export function auctionInfo() {
+export function auctionInfo(id) {
     return request({
         url: '/auction/info',
-        method: 'get'
+        method: 'get',
+        params: {id}
+    })
+}
+
+export function uploadAuctionImages(files) {
+    const formData = new FormData()
+    files.forEach((file, index) => {
+        formData.append(`files[${index}]`, file)
+    })
+    return request({
+        url: '/auction/uploadImages',
+        method: 'post',
+        header: {'content-type': 'multipart/form-data'},
+        data: formData
     })
 }
 
@@ -30,10 +45,10 @@ export function updateAuction(data) {
     })
 }
 
-export function deleteAuction(data) {
+export function deleteAuction(id) {
     return request({
         url: '/auction/delete',
         method: 'post',
-        data: data
+        data: {id}
     })
 }

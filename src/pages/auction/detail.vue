@@ -1,153 +1,313 @@
 <template>
-  <view class="container">
-    <image class="container-img" src="/static/page_bg.png"></image>
-    <view class="content">
-      <view class="page">
-        <view class="info-container">
-          <scroll-view class="scroll-view" scroll-y="true">
-            <view class="scroll-container">
-              <uv-image mode="widthFix" width="100%"
-                        src="https://img0.baidu.com/it/u=2778447173,2923413644&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=1117"/>
+  <view class="detail-page">
+    <uv-navbar
+        title="拍品详情"
+        :autoBack="true"
+        left-text="返回"
+        bgColor="transparent"
+        :titleStyle="navbarTitle"
+        :placeholder="true"
+    />
 
-              <text class="info">名称：中国国家最新标准《汽车和挂车类型的术语和定义》（GB/T
-                3730．1—2001）中对汽车有如下定义：由动力驱动，具有4个或4个以上车轮的非轨道承载的车辆，主要用于：载运人员和（或）货物；牵引载运人员和（或）货物的车辆；特殊用途。
-                [12]
-                国产汽车品牌有：集度、五菱、宝骏、红旗、长安、长城、奇瑞、吉利、荣威、比亚迪，蔚来，小鹏汽车，东风等。
-                国外汽车品牌有：丰田、大众、奥迪、奔驰、现代、起亚、标致、凯迪拉克，日产等。
-                2025年1月8日消息，国家发展改革委、财政部发布关于2025年加力扩围实施大规模设备更新和消费品以旧换新政策的通知。通知提出，完善汽车置换更新补贴标准。
-              </text>
-              <uv-divider style="height: 1%;padding-bottom: 900upx"/>
-            </view>
-          </scroll-view>
-        </view>
-        <view class="msg-container" :style="{height: msgContainerHeight}">
-          <view class="bg-view"/>
-          <scroll-view class="scroll-view" scroll-y="true">
-            <view class="scroll-container">
-              <view class="top-line" @click="toggleMsg"/>
-              <view class="item-container" v-for="a of 10">
+    <scroll-view scroll-y class="detail-scroll" :show-scrollbar="false">
+      <uv-image
+          class="hero-image"
+          mode="widthFix"
+          width="100%"
+          :src="auction?.imgUrl || defaultCover"
+      />
 
-              </view>
-            </view>
-          </scroll-view>
+      <view class="info-card" v-if="auction">
+        <text class="info-title">{{ auction.title }}</text>
+        <text class="info-subtitle" v-if="auction.subTitle">{{ auction.subTitle }}</text>
+
+        <view class="info-grid">
+          <view class="grid-item">
+            <text class="grid-label">编号</text>
+            <text class="grid-value">{{ auction.id }}</text>
+          </view>
+          <view class="grid-item">
+            <text class="grid-label">状态</text>
+            <text class="grid-value status-pill">{{ statusName(auction.status) }}</text>
+          </view>
+          <view class="grid-item">
+            <text class="grid-label">起拍价</text>
+            <text class="grid-value price">¥{{ auction.minPrice }}</text>
+          </view>
+          <view class="grid-item">
+            <text class="grid-label">封顶价</text>
+            <text class="grid-value">¥{{ auction.maxPrice || '—' }}</text>
+          </view>
+          <view class="grid-item">
+            <text class="grid-label">开始时间</text>
+            <text class="grid-value">{{ auction.startTime || '待定' }}</text>
+          </view>
+          <view class="grid-item">
+            <text class="grid-label">结束时间</text>
+            <text class="grid-value">{{ auction.endTime || '待定' }}</text>
+          </view>
         </view>
       </view>
+
+      <view class="offer-card">
+        <view class="offer-header">
+          <text class="offer-title">出价记录</text>
+          <text class="offer-tip">向下拖动可查看更多</text>
+        </view>
+        <scroll-view scroll-y class="offer-scroll">
+          <view v-if="!offers.length" class="empty-offer">暂无出价</view>
+          <view class="offer-item" v-for="offer in offers" :key="offer.id">
+            <view>
+              <text class="offer-price">¥{{ offer.price }}</text>
+              <text class="offer-user">{{ offer.user?.nick || '匿名竞拍者' }}</text>
+            </view>
+            <text class="offer-status" v-if="offer.win === 1">中标</text>
+          </view>
+        </scroll-view>
+      </view>
+    </scroll-view>
+
+    <view class="bid-bar">
+      <uv-input
+          v-model="bidPrice"
+          placeholder="输入您的出价"
+          type="digit"
+          class="bid-input"
+      />
+      <button class="bid-button" @click="submitOffer">提交</button>
     </view>
   </view>
 </template>
 
 <script>
-import UvSubsection from "../../uni_modules/uv-subsection/components/uv-subsection/uv-subsection.vue";
-import CodeIndex from "../code/index.vue";
-import AuctionIndex from "./index.vue";
 import UvImage from "../../uni_modules/uv-image/components/uv-image/uv-image.vue";
-import UvDivider from "../../uni_modules/uv-divider/components/uv-divider/uv-divider.vue";
-import UvReadMore from "../../uni_modules/uv-read-more/components/uv-read-more/uv-read-more.vue";
+import UvInput from "../../uni_modules/uv-input/components/uv-input/uv-input.vue";
+import {auctionInfo} from "../../api/auction";
+import {addOffer, offerList} from "../../api/offer";
+import {getUserId} from "../../util/user";
+import {toast} from "../../util/common";
+import UvNavbar from "../../uni_modules/uv-navbar/components/uv-navbar/uv-navbar.vue";
 
-/**
- * @author reone create by 2025/7/27
- */
 export default {
   name: "detail",
-  components: {UvReadMore, UvDivider, UvImage, AuctionIndex, CodeIndex, UvSubsection},
+  components: {UvInput, UvImage, UvNavbar},
   data() {
     return {
-      subData: null,
-      msgContainerHeight: '25%'
+      auctionId: null,
+      auction: null,
+      offers: [],
+      bidPrice: '',
+      defaultCover: 'https://via.placeholder.com/750x420?text=Auction',
+      navbarTitle: {
+        color: '#0f5132',
+        fontWeight: 600
+      }
     }
   },
-  props: {},
-  watch: {},
-  created() {
+  onLoad(options) {
+    this.auctionId = options.id
+    this.loadAuction()
+    this.loadOffers()
   },
   methods: {
-    toggleMsg() {
-      this.msgContainerHeight = this.msgContainerHeight === '25%' ? '80%' : '25%'
+    statusName(status) {
+      const map = {
+        0: '草稿',
+        1: '未开始',
+        2: '进行中',
+        3: '中止',
+        4: '完成',
+        5: '流标'
+      }
+      return map[status] || '待发布'
+    },
+    loadAuction() {
+      if (!this.auctionId) return
+      auctionInfo(this.auctionId).then(res => {
+        this.auction = res.data
+      })
+    },
+    loadOffers() {
+      if (!this.auctionId) return
+      offerList({auctionId: this.auctionId}).then(res => {
+        this.offers = res.data || []
+      })
+    },
+    submitOffer() {
+      if (!this.bidPrice) {
+        toast('请输入出价')
+        return
+      }
+      const userId = getUserId()
+      if (!userId) {
+        toast('请先登录')
+        return
+      }
+      addOffer({
+        auctionId: this.auctionId,
+        userId,
+        price: Number(this.bidPrice)
+      }).then(() => {
+        toast('出价成功')
+        this.bidPrice = ''
+        this.loadOffers()
+      })
     }
   }
 }
 </script>
 
-<style scoped>
-.container {
-
+<style lang="scss" scoped>
+.detail-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding-bottom: 140rpx;
 }
 
-.page {
+.detail-scroll {
+  max-height: calc(100vh - 140rpx);
+}
+
+.hero-image {
+  width: 100%;
+  border-radius: 0 0 32rpx 32rpx;
+}
+
+.info-card {
+  background: var(--color-card);
+  margin: 24rpx;
+  padding: 32rpx;
+  border-radius: 28rpx;
+  box-shadow: 0 20rpx 40rpx rgba(15, 81, 50, 0.08);
+}
+
+.info-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.info-subtitle {
+  font-size: 26rpx;
+  color: var(--color-muted);
+  margin-top: 10rpx;
+  display: block;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+  margin-top: 24rpx;
+}
+
+.grid-label {
+  font-size: 24rpx;
+  color: var(--color-muted);
+}
+
+.grid-value {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.price {
+  color: var(--color-primary);
+}
+
+.status-pill {
+  color: var(--color-primary);
+}
+
+.offer-card {
+  background: var(--color-card);
+  margin: 0 24rpx 24rpx;
+  padding: 32rpx;
+  border-radius: 28rpx;
+  box-shadow: 0 12rpx 24rpx rgba(15,81,50,0.07);
+}
+
+.offer-header {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.info-container {
-  height: 100%;
-  width: 100%;
-  overflow: inherit;
-  box-shadow: 10upx 16upx 24upx rgba(0, 0, 0, 0.5);
-
-  .scroll-view {
-    height: 100%;
-    width: 100%;
-
-    .scroll-container {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-
-      .info {
-        padding: 20upx;
-        color: white;;
-      }
-    }
-  }
+.offer-title {
+  font-size: 32rpx;
+  font-weight: 600;
 }
 
-.msg-container {
-  width: 100%;
-  position: absolute;
+.offer-tip {
+  font-size: 24rpx;
+  color: var(--color-muted);
+}
+
+.offer-scroll {
+  max-height: 360rpx;
+  margin-top: 20rpx;
+}
+
+.offer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.offer-item:last-child {
+  border-bottom: none;
+}
+
+.offer-price {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.offer-user {
+  display: block;
+  font-size: 24rpx;
+  color: var(--color-muted);
+}
+
+.offer-status {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.empty-offer {
+  text-align: center;
+  color: var(--color-muted);
+  padding: 80rpx 0;
+}
+
+.bid-bar {
+  position: fixed;
   bottom: 0;
   left: 0;
-  transition: height 0.3s ease-in-out;
-  will-change: height; /* 优化性能 */
+  right: 0;
+  background: #fff;
+  padding: 16rpx 24rpx 40rpx;
+  display: flex;
+  gap: 16rpx;
+  box-shadow: 0 -8rpx 24rpx rgba(0,0,0,0.08);
+}
 
-  .bg-view {
-    opacity: 0.15;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    background-color: #ffffff;
-    border-top-left-radius: 30px;
-    border-top-right-radius: 30px;
-  }
+.bid-input {
+  flex: 1;
+  background: #f4f6f8;
+  border-radius: 999rpx;
+  padding: 0 24rpx;
+}
 
-  .top-line {
-    background-color: rgb(255, 255, 255, 0.4);
-    width: 50%;
-    height: 4px;
-    justify-self: center;
-    margin: 14px;
-    align-self: center;
-    border-radius: 10px;
-  }
-
-  .scroll-view {
-    height: 100%;
-    width: 100%;
-
-    .scroll-container {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-
-      .item-container {
-        height: 120px;
-        margin: 5px 20px;
-        border-radius: 24upx;
-        background-color: #A4FF7C;
-      }
-    }
-  }
+.bid-button {
+  min-width: 160rpx;
+  border-radius: 999rpx;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
 }
 </style>

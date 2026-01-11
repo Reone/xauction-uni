@@ -22,9 +22,11 @@ export default defineConfig(({ command, mode }) => {
       }
     },
     css: {
-      loaderOptions: {
-        sass: {
-          sassOptions: { outputStyle: "expanded" }
+      preprocessorOptions: {
+        scss: {
+          api: 'modern',
+          silenceDeprecations: ['import', 'legacy-js-api', 'global-builtin'],
+          outputStyle: "expanded"
         }
       }
     },

@@ -29,3 +29,27 @@ export function userList() {
         method: 'get'
     })
 }
+
+export function userInfo(id) {
+    return request({
+        url: '/user/info',
+        method: 'get',
+        params: {id}
+    })
+}
+
+export function updateUser(data) {
+    return request({
+        url: '/user/update',
+        method: 'post',
+        data
+    })
+}
+
+export function deleteUser(id) {
+    return request({
+        url: '/user/delete',
+        method: 'post',
+        data: {id}
+    })
+}

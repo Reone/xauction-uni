@@ -1,137 +1,166 @@
 <template>
-  <view class="container">
-    <image class="container-img" src="/static/page_bg.png"></image>
-    <view class="content">
-      <view class="page">
-        <uv-form ref="form" :formData="auctionForm" :rules="rules"
-                 style="margin: 10px;"
-                 :label-style="{color:'#fff',fontSize:'18px'}"
-                 labelPosition="left"
-                 label-width="200upx"
-        >
-          <uv-form-item label="标题" prop="title">
-            <uv-input v-model="auctionForm.title" color="#fff" placeholder="请输入拍卖标题"></uv-input>
-          </uv-form-item>
-          <uv-form-item label="副标题或内容" prop="subTitle" label-position="top" label-width="100%">
-            <uv-textarea v-model="auctionForm.subTitle"
-                         placeholder="请输入副标题或说明文案"
-                         :autoHeight="true" :maxlength="2000"
-                         :count="true"></uv-textarea>
-          </uv-form-item>
-          <uv-form-item label="图片地址" prop="imgUrl">
-            <uv-input v-model="auctionForm.imgUrl" color="#fff" placeholder="请输入网络图片地址"></uv-input>
-          </uv-form-item>
-          <uv-form-item label="起拍价" prop="minPrice">
-            <uv-input v-model="auctionForm.minPrice" color="#fff" placeholder="请输入起拍价" type="digit"></uv-input>
-          </uv-form-item>
-          <uv-form-item label="最高价" prop="maxPrice">
-            <uv-input v-model="auctionForm.maxPrice" color="#fff" placeholder="请输入最高价" type="digit"></uv-input>
-          </uv-form-item>
-          <uv-form-item label="开始时间" prop="startTime">
-            <picker mode="date" :value="auctionForm.startTime" @change="onStartTimeChange">
-              <uv-input v-model="auctionForm.startTime" color="#fff" placeholder="请输入拍卖开始时间"></uv-input>
-            </picker>
-          </uv-form-item>
-          <uv-form-item label="结束时间" prop="endTime">
-            <picker mode="date" :value="auctionForm.endTime" @change="onEndTimeChange">
-              <uv-input v-model="auctionForm.endTime" color="#fff" placeholder="请输入拍卖结束时间"></uv-input>
-            </picker>
-          </uv-form-item>
-        </uv-form>
+  <view class="add-page">
+    <uv-navbar
+        title="新建拍卖"
+        :autoBack="true"
+        left-text="返回"
+        bgColor="transparent"
+        :titleStyle="navbarTitle"
+        :placeholder="true"
+    />
 
-        <button class="btn" @click="addAuction">开始拍卖</button>
-      </view>
-    </view>
+    <scroll-view scroll-y class="form-scroll" :show-scrollbar="false">
+      <uv-form ref="form" :formData="auctionForm" :rules="rules">
+        <uv-form-item label="标题" prop="title">
+          <uv-input v-model="auctionForm.title" placeholder="请输入拍卖标题" />
+        </uv-form-item>
+
+        <uv-form-item label="副标题/简介" prop="subTitle">
+          <uv-textarea v-model="auctionForm.subTitle" placeholder="用于吸引买家关注" :autoHeight="true" :maxlength="2000" />
+        </uv-form-item>
+
+        <uv-form-item label="拍品图片" prop="imgUrl">
+          <uv-upload
+              :fileList="fileList"
+              name="files"
+              :maxCount="1"
+              :previewFullImage="true"
+              :maxSize="5 * 1024 * 1024"
+              @afterRead="afterRead"
+              @delete="deletePic"
+          />
+          <text class="upload-hint">建议上传 750×420 以上高清图</text>
+        </uv-form-item>
+
+        <uv-form-item label="起拍价" prop="minPrice">
+          <uv-input v-model="auctionForm.minPrice" placeholder="请输入起拍价" type="digit" />
+        </uv-form-item>
+
+        <uv-form-item label="封顶价" prop="maxPrice">
+          <uv-input v-model="auctionForm.maxPrice" placeholder="可选，封顶价格" type="digit" />
+        </uv-form-item>
+
+        <uv-form-item label="开始时间" prop="startTime">
+          <picker mode="date" :value="auctionForm.startTime" @change="onStartTimeChange">
+            <uv-input v-model="auctionForm.startTime" placeholder="请选择日期" readonly />
+          </picker>
+        </uv-form-item>
+
+        <uv-form-item label="结束时间" prop="endTime">
+          <picker mode="date" :value="auctionForm.endTime" @change="onEndTimeChange">
+            <uv-input v-model="auctionForm.endTime" placeholder="请选择日期" readonly />
+          </picker>
+        </uv-form-item>
+      </uv-form>
+    </scroll-view>
+
+    <button class="submit-btn" :loading="submitting" :disabled="submitting" @click="addAuction">
+      {{ submitting ? '提交中...' : '发布拍卖' }}
+    </button>
   </view>
 </template>
 
 <script>
-import UvSubsection from "../../uni_modules/uv-subsection/components/uv-subsection/uv-subsection.vue";
-import CodeIndex from "../code/index.vue";
-import AuctionIndex from "./index.vue";
-import UvImage from "../../uni_modules/uv-image/components/uv-image/uv-image.vue";
-import UvDivider from "../../uni_modules/uv-divider/components/uv-divider/uv-divider.vue";
-import UvReadMore from "../../uni_modules/uv-read-more/components/uv-read-more/uv-read-more.vue";
 import UvForm from "../../uni_modules/uv-form/components/uv-form/uv-form.vue";
 import UvFormItem from "../../uni_modules/uv-form/components/uv-form-item/uv-form-item.vue";
 import UvInput from "../../uni_modules/uv-input/components/uv-input/uv-input.vue";
-import UvDatetimePicker
-  from "../../uni_modules/uv-datetime-picker/components/uv-datetime-picker/uv-datetime-picker.vue";
 import UvTextarea from "../../uni_modules/uv-textarea/components/uv-textarea/uv-textarea.vue";
+import UvNavbar from "../../uni_modules/uv-navbar/components/uv-navbar/uv-navbar.vue";
+import UvUpload from "../../uni_modules/uv-upload/components/uv-upload/uv-upload.vue";
 import {addAuction} from "../../api/auction";
 import {toast} from "../../util/common";
 
-/**
- * @author reone create by 2025/7/27
- */
 export default {
-  name: "detail",
-  components: {
-    UvTextarea,
-    UvDatetimePicker,
-    UvInput, UvFormItem, UvForm, UvReadMore, UvDivider, UvImage, AuctionIndex, CodeIndex, UvSubsection
-  },
+  name: "add",
+  components: {UvTextarea, UvInput, UvFormItem, UvForm, UvNavbar, UvUpload},
   data() {
     return {
-      startTimeDialog: false,
+      submitting: false,
+      fileList: [],
       auctionForm: {
-        title: null,
-        subTitle: null,
-        imgUrl: null,
-        minPrice: 0,
-        maxPrice: null,
-        //startTime默认今天,格式 YYYY-MM-DD
+        title: '',
+        subTitle: '',
+        imgUrl: '',
+        minPrice: '',
+        maxPrice: '',
+        status: 1,
         startTime: new Date().toISOString().split('T')[0],
-        endTime: null,
+        endTime: ''
       },
       rules: {
-        title: [
-          {required: true, message: '请输入标题', trigger: 'blur'}
-        ],
-        subTitle: [
-          {required: false, message: '请输入副标题', trigger: 'blur'}
-        ],
-        imgUrl: [
-          {required: false, message: '请选择图片', trigger: 'blur'}
-        ],
-        minPrice: [
-          {required: false, message: '请输入起拍价', trigger: 'blur'}
-        ],
-        maxPrice: [
-          {required: false, message: '请输入最高价', trigger: 'blur'}
-        ],
-        startTime: [
-          {required: false, message: '请输入开始时间', trigger: 'blur'}
-        ],
-        endTime: [
-          {required: false, message: '请输入结束时间', trigger: 'blur'}
-        ]
+        title: [{required: true, message: '请输入标题', trigger: 'blur'}],
+        minPrice: [{required: true, message: '请输入起拍价', trigger: 'blur'}],
+        startTime: [{required: true, message: '请选择开始时间', trigger: 'change'}],
+        endTime: [{required: true, message: '请选择结束时间', trigger: 'change'}]
+      },
+      navbarTitle: {
+        color: '#0f5132',
+        fontWeight: 600
       }
     }
   },
-  props: {},
-  watch: {},
-  created() {
-  },
   methods: {
-    addAuction() {
-      console.log('addAuction', this.auctionForm)
-      addAuction(this.auctionForm).then(res => {
+    validateForm() {
+      if (!this.auctionForm.title) {
+        toast('请输入标题')
+        return false
+      }
+      if (!this.auctionForm.minPrice) {
+        toast('请输入起拍价')
+        return false
+      }
+      if (!this.auctionForm.startTime || !this.auctionForm.endTime) {
+        toast('请选择时间范围')
+        return false
+      }
+      if (new Date(this.auctionForm.endTime) < new Date(this.auctionForm.startTime)) {
+        toast('结束时间需晚于开始时间')
+        return false
+      }
+      if (!this.auctionForm.imgUrl) {
+        toast('请上传拍品图片')
+        return false
+      }
+      return true
+    },
+    async addAuction() {
+      if (this.submitting) return
+      if (!this.validateForm()) return
+      this.submitting = true
+      uni.showLoading({title: '提交中', mask: true})
+      const payload = {
+        ...this.auctionForm,
+        minPrice: Number(this.auctionForm.minPrice),
+        maxPrice: this.auctionForm.maxPrice ? Number(this.auctionForm.maxPrice) : null
+      }
+      let timer = null
+      const timeoutGuard = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('TIMEOUT')), 12000)
+      })
+      try {
+        const res = await Promise.race([addAuction(payload), timeoutGuard])
         if (res.code === 200) {
-          uni.showToast({
-            title: '添加成功',
-            icon: 'success',
-            duration: 2000
-          })
-          setTimeout(() => {
-            uni.navigateBack()
-          }, 2000)
+          toast('添加成功')
+          this.safeBack()
         } else {
-          uni.showToast({
-            title: res.message,
-            icon: 'error',
-            duration: 2000
-          })
+          toast(res.msg || '提交失败')
+        }
+      } catch (err) {
+        if (err.message === 'TIMEOUT') {
+          toast('服务器响应超时，请稍后重试')
+        } else {
+          toast(err.errMsg || err.message || '提交失败')
+        }
+      } finally {
+        if (timer) clearTimeout(timer)
+        this.submitting = false
+        uni.hideLoading()
+      }
+    },
+    safeBack() {
+      uni.navigateBack({
+        fail: () => {
+          uni.reLaunch({url: '/pages/admin/index'})
         }
       })
     },
@@ -140,40 +169,95 @@ export default {
     },
     onEndTimeChange(e) {
       this.auctionForm.endTime = e.detail.value
+    },
+    async afterRead(event) {
+      const files = Array.isArray(event.file) ? event.file : [event.file]
+      files.forEach(file => {
+        this.fileList = [{...file, status: 'uploading', message: '上传中'}]
+      })
+      try {
+        const url = await this.uploadFilePromise(files[0].url)
+        this.fileList = [{url, status: 'success'}]
+        this.auctionForm.imgUrl = url
+      } catch (err) {
+        this.fileList = []
+        toast(err.errMsg || err.message || '上传失败，请重试')
+      }
+    },
+    uploadFilePromise(filePath) {
+      const apiBase = 'http://localhost:8080'
+      const user = uni.getStorageSync('user') || {}
+      const header = user.id ? {'user-id': user.id} : {}
+      return new Promise((resolve, reject) => {
+        uni.uploadFile({
+          url: apiBase + '/auction/uploadImages',
+          filePath,
+          name: 'files',
+          header,
+          success: res => {
+            try {
+              const result = JSON.parse(res.data)
+              if (result.code === 200 && result.data && result.data.length) {
+                resolve(result.data[0])
+              } else {
+                reject(new Error(result.msg || '上传失败'))
+              }
+            } catch (e) {
+              reject(new Error('上传返回解析失败'))
+            }
+          },
+          fail: err => {
+            reject(err)
+          }
+        })
+      })
+    },
+    deletePic() {
+      this.fileList = []
+      this.auctionForm.imgUrl = ''
     }
   }
 }
 </script>
 
-<style scoped>
-.container {
-
+<style lang="scss" scoped>
+.add-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding: 0 24rpx 160rpx;
+  box-sizing: border-box;
 }
 
-.page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
+.form-scroll {
+  max-height: calc(100vh - 220rpx);
+  padding: 24rpx 0 40rpx;
 }
 
-.btn {
-  width: 80%;
-  border-radius: 14rpx;
-  background-color: #A4FF7C;
-  font-size: 14px;
-  top: 10px;
-  justify-self: center;
-}
-.uv-textarea{
-  background-color: transparent;
-}
-:deep .uni-textarea-textarea{
-  color: #fff !important;
-}
-:deep .uv-textarea__count{
-  background-color: transparent !important;
-  color: #fff !important;
+:deep(.uv-form-item__body) {
+  background: var(--color-card);
+  border-radius: 24rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 12rpx 20rpx rgba(15,81,50,0.05);
 }
 
+.upload-hint {
+  font-size: 22rpx;
+  color: var(--color-muted);
+  margin-top: 12rpx;
+}
+
+.submit-btn {
+  position: fixed;
+  bottom: 40rpx;
+  left: 40rpx;
+  right: 40rpx;
+  height: 96rpx;
+  border-radius: 999rpx;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  box-shadow: 0 20rpx 30rpx rgba(31,190,107,0.4);
+}
 </style>
